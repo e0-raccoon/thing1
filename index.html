@@ -1,7 +1,134 @@
-<html>
-    <head>  <title> e </title>
-        <body>
-            <ul> <li>you're pretty :D</li> <li>I love You <3 </li> </ul>
-        </body>
-    </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firework Animation</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas></canvas>
+  <script>
+    // Set up the canvas and context
+    const canvas = document.querySelector('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Variables for stars
+    const stars = [];
+    const numStars = 200;
+
+    // Variables for fireworks
+    const fireworks = [];
+    const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A8', '#F3FF33'];
+
+    // Add stars to the background
+    function createStars() {
+      for (let i = 0; i < numStars; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 2 + 1,
+          alpha: Math.random() * 0.5 + 0.5
+        });
+      }
+    }
+
+    function drawStars() {
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      for (const star of stars) {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    // Firework logic
+    function createFirework(x, y) {
+      const particles = [];
+      for (let i = 0; i < 50; i++) {
+        particles.push({
+          x: x,
+          y: y,
+          angle: Math.random() * Math.PI * 2,
+          speed: Math.random() * 4 + 2,
+          radius: 0,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+      fireworks.push({ particles, lifespan: 100 });
+    }
+
+    function updateFireworks() {
+      for (let i = fireworks.length - 1; i >= 0; i--) {
+        const firework = fireworks[i];
+        for (const particle of firework.particles) {
+          particle.x += Math.cos(particle.angle) * particle.speed;
+          particle.y += Math.sin(particle.angle) * particle.speed;
+          particle.radius += 0.1; // Increase the radius growth for thicker particles
+          particle.speed *= 0.98;
+        }
+        firework.lifespan--;
+        if (firework.lifespan <= 0) {
+          fireworks.splice(i, 1);
+        }
+      }
+    }
+
+    function drawFireworks() {
+      for (const firework of fireworks) {
+        for (const particle of firework.particles) {
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `${particle.color}AA`; // Add transparency to the color for brightness
+          ctx.fill();
+        }
+      }
+    }
+
+    // Display message
+    function drawMessage() {
+      ctx.font = '36px Arial';
+      ctx.fillStyle = 'gold';
+      ctx.textAlign = 'center';
+      ctx.fillText('Happy New Year!', canvas.width / 2, canvas.height / 2);
+    }
+
+    // Play a firework when the page loads
+    function autoFirework() {
+      createFirework(canvas.width / 2, canvas.height / 2);
+    }
+
+    // Main animation loop
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawStars();
+      drawFireworks();
+      drawMessage();
+      updateFireworks();
+      requestAnimationFrame(animate);
+    }
+
+    // Event listener for clicks
+    canvas.addEventListener('click', (e) => {
+      createFirework(e.clientX, e.clientY);
+    });
+
+    // Initialize
+    createStars();
+    animate();
+    setTimeout(autoFirework, 500); // Delay to ensure the animation loop starts
+  </script>
+</body>
 </html>
